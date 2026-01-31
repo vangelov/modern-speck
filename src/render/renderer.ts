@@ -107,11 +107,7 @@ export class Renderer {
     this.createFramebuffers();
   }
 
-  static async create(
-    canvas: HTMLCanvasElement,
-    resolution: Resolution,
-    aoResolution: Resolution,
-  ) {
+  static async create(canvas: HTMLCanvasElement, state: State) {
     const pico = PicoGL.createApp(canvas);
     pico.clearColor(0.0, 0.0, 0.0, 1.0);
     pico.enable(PicoGL.DEPTH_TEST);
@@ -146,6 +142,8 @@ export class Renderer {
 
       [DOFProgram.vertexShaderSrc, DOFProgram.fragmentShaderSrc],
     );
+
+    const { resolution, aoResolution } = State.getResolutions(state);
 
     return new Renderer(pico, resolution, aoResolution, {
       progAtoms,
@@ -329,7 +327,9 @@ export class Renderer {
     this.fbDOF.colorTarget(0, tDOF);
   }
 
-  setResolution(resolution: Resolution, aoResolution: Resolution) {
+  setResolution(state: State) {
+    const { resolution, aoResolution } = State.getResolutions(state);
+
     this.aoResolution = aoResolution;
     this.resolution = resolution;
     this.pico.resize(resolution.width, resolution.height);
@@ -343,11 +343,11 @@ export class Renderer {
     const radius: number[] = [];
     const color: number[] = [];
 
+    imposter.push(...Cube.position);
+
     for (const atom of structure.atoms) {
       const element = Config.elementsMap.get(atom.symbol);
       if (!element) continue;
-
-      imposter.push(...Cube.position);
 
       position.push(...[atom.x, atom.y, atom.z]);
       radius.push(element.radius);
@@ -399,10 +399,11 @@ export class Renderer {
         const cola: number[] = [];
         const colb: number[] = [];
 
+        imposter.push(...Cube.position);
+
         for (const b of structure.bonds) {
           if (b.cutoff > state.bondThreshold) break;
 
-          imposter.push(...Cube.position);
           posa.push(...[b.posA.x, b.posA.y, b.posA.z]);
           posb.push(...[b.posB.x, b.posB.y, b.posB.z]);
           rada.push(...[b.radA]);
@@ -495,7 +496,7 @@ export class Renderer {
     this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
     this.pico.clear();
 
-    const rect = State.getRect(state, this.resolution);
+    const rect = State.getRect(state);
     const projection = mat4.create();
     mat4.ortho(
       projection,
@@ -573,7 +574,7 @@ export class Renderer {
     this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
     this.pico.clear();
 
-    const rect = State.getRect(v, this.resolution);
+    const rect = State.getRect(v);
     const projection = mat4.create();
     mat4.ortho(
       projection,
@@ -628,8 +629,8 @@ export class Renderer {
     }
 
     this.pico.viewport(0, 0, this.resolution.width, this.resolution.height);
-    const sceneRect = State.getRect(state, this.resolution);
-    const rotRect = State.getRect(v, this.resolution);
+    const sceneRect = State.getRect(state);
+    const rotRect = State.getRect(v);
     const invRot = mat4.invert(mat4.create(), rot);
 
     if (!this.accumTexture)
@@ -694,27 +695,28 @@ export class Renderer {
   display(state: State) {
     this.pico.viewport(0, 0, this.resolution.width, this.resolution.height);
 
-    this.pico.drawFramebuffer(this.fbAO);
+    let lastT = this.fbSceneColor.colorAttachments[0];
 
-    this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
-    this.pico.clear();
+    if (this.accumTexture) {
+      this.pico.drawFramebuffer(this.fbAO);
 
-    this.rAO.texture("uSceneColor", this.fbSceneColor.colorAttachments[0]);
-    this.rAO.texture(
-      "uSceneDepth",
-      this.fbSceneColor.depthAttachment as Texture,
-    );
-    this.rAO.texture(
-      "uAccumulatorOut",
-      this.accumTexture || this.fbAccumulatorCopy.colorAttachments[0],
-    );
-    this.rAO.uniform("uRes", [this.resolution.width, this.resolution.height]);
-    this.rAO.uniform("uAO", 2.0 * state.ao);
-    this.rAO.uniform("uBrightness", 2.0 * state.brightness);
-    this.rAO.uniform("uOutlineStrength", state.outline);
-    this.rAO.draw();
+      this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
+      this.pico.clear();
 
-    let lastT = this.fbAO.colorAttachments[0];
+      this.rAO.texture("uSceneColor", this.fbSceneColor.colorAttachments[0]);
+      this.rAO.texture(
+        "uSceneDepth",
+        this.fbSceneColor.depthAttachment as Texture,
+      );
+      this.rAO.texture("uAccumulatorOut", this.accumTexture);
+      this.rAO.uniform("uRes", [this.resolution.width, this.resolution.height]);
+      this.rAO.uniform("uAO", 2.0 * state.ao);
+      this.rAO.uniform("uBrightness", 2.0 * state.brightness);
+      this.rAO.uniform("uOutlineStrength", state.outline);
+      this.rAO.draw();
+
+      lastT = this.fbAO.colorAttachments[0];
+    }
 
     if (state.fxaa > 0) {
       //   if (state.dofStrength > 0) {

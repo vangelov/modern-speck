@@ -2,14 +2,15 @@ import { mat4, vec4 } from "gl-matrix";
 import type { Resolution, Structure } from "../types";
 import { Config } from "../config";
 import { Lib } from "../lib";
+import { samples } from "../config/samples";
 
 const windowResolution: Resolution = {
   width: window.innerWidth,
   height: window.innerHeight,
-  aspect: window.innerWidth / window.innerHeight,
 };
 
 export type State = {
+  file: string;
   zoom: number;
   translation: {
     x: number;
@@ -32,10 +33,13 @@ export type State = {
   dofStrength: number;
   dofPosition: number;
   fxaa: number;
+  aspect: number;
+  windowResolution: Resolution;
 };
 
 function create(): State {
   return {
+    file: samples[0].file,
     zoom: 0.125,
     translation: {
       x: 0.0,
@@ -58,10 +62,12 @@ function create(): State {
     dofStrength: 0.0,
     dofPosition: 0.5,
     fxaa: 1,
+    aspect: window.innerWidth / window.innerHeight,
+    windowResolution: windowResolution,
   };
 }
 
-function center(state: State, structure: Structure, resolution: Resolution) {
+function center(state: State, structure: Structure) {
   let maxX = -Infinity;
   let minX = Infinity;
   let maxY = -Infinity;
@@ -94,7 +100,7 @@ function center(state: State, structure: Structure, resolution: Resolution) {
 
   // account for aspect ratio
   scaleX /= 1.0; // width is unaffected
-  scaleY *= resolution.aspect; // height will be scaled by aspect
+  scaleY *= state.aspect; // height will be scaled by aspect
 
   var scale = Math.max(scaleX, scaleY); // choose largest after correction
 
@@ -141,9 +147,9 @@ function rotate(state: State, dx: number, dy: number) {
   resolve(state);
 }
 
-function getRect(state: State, resolution: Resolution) {
+function getRect(state: State) {
   const width = 1.0 / state.zoom;
-  const height = width / resolution.aspect;
+  const height = width / state.aspect;
   const bottom = -height / 2 + state.translation.y;
   const top = height / 2 + state.translation.y;
   const left = -width / 2 + state.translation.x;
@@ -166,7 +172,7 @@ function getBondRadius(state: State) {
 }
 
 function clone(state: State) {
-  return State.deserialize(State.serialize(state));
+  return structuredClone(state);
 }
 
 function serialize(state: State) {
@@ -179,23 +185,17 @@ function deserialize(data: string) {
   return state;
 }
 
-function getResolutions(
-  state: State,
-  windowWidth: number,
-  windowHeight: number,
-) {
-  const aspect = windowWidth / windowHeight;
+function getResolutions(state: State) {
+  const windowResolution = state.windowResolution;
 
   const resolution = {
-    width: windowWidth * state.resolutionScale,
-    height: windowHeight * state.resolutionScale,
-    aspect,
+    width: windowResolution.width * state.resolutionScale,
+    height: windowResolution.height * state.resolutionScale,
   };
 
   const aoResolution = {
     width: windowResolution.width * state.aoResScale,
     height: windowResolution.height * state.aoResScale,
-    aspect,
   };
 
   return { resolution, aoResolution };

@@ -1,13 +1,11 @@
 import type { Pane } from "tweakpane";
 import { addInput, addPercentInput } from "./inputs";
 import { State } from "../state";
-import type { Resolution, Structure } from "../types";
 import type { Renderer } from "../render/renderer";
 
 export type Params = {
   pane: Pane;
   state: State;
-  structure: Structure;
   renderer: Renderer;
   onReset: () => void;
 };
@@ -16,7 +14,7 @@ export function addRenderFolder({
   pane,
   state,
   renderer,
-  structure,
+
   onReset,
 }: Params) {
   const renderFolder = pane.addFolder({ title: "Render" });
@@ -58,7 +56,7 @@ export function addRenderFolder({
     initialValue: false,
     onChange: (value) => {
       state.bonds = value;
-      renderer.setStructure(structure, state);
+      if (renderer.structure) renderer.setStructure(renderer.structure, state);
       onReset();
     },
   });
@@ -81,7 +79,7 @@ export function addRenderFolder({
     step: 0.1,
     onChange: (value) => {
       state.bondThreshold = value;
-      renderer.setStructure(structure, state);
+      if (renderer.structure) renderer.setStructure(renderer.structure, state);
       onReset();
     },
   });
@@ -131,13 +129,7 @@ export function addRenderFolder({
     onChange: (value) => {
       state.aoResScale = value;
 
-      const { resolution, aoResolution } = State.getResolutions(
-        state,
-        window.innerWidth,
-        window.innerHeight,
-      );
-
-      renderer.setResolution(resolution, aoResolution);
+      renderer.setResolution(state);
       onReset();
     },
   });
@@ -219,13 +211,7 @@ export function addRenderFolder({
     onChange: (value) => {
       state.resolutionScale = value;
 
-      const { resolution, aoResolution } = State.getResolutions(
-        state,
-        window.innerWidth,
-        window.innerHeight,
-      );
-
-      renderer.setResolution(resolution, aoResolution);
+      renderer.setResolution(state);
       onReset();
     },
   });
@@ -233,7 +219,7 @@ export function addRenderFolder({
   renderFolder.addBlade({ view: "separator" });
 
   renderFolder.addButton({ title: "Center" }).on("click", () => {
-    State.center(state, structure, renderer.resolution);
+    if (renderer.structure) State.center(state, renderer.structure);
     onReset();
   });
 }

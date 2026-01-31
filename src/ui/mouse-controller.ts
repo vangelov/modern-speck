@@ -18,23 +18,25 @@ export function createMouseController({
   let lastX = 0.0;
   let lastY = 0.0;
 
-  renderContainer.addEventListener("mousedown", function (e) {
+  renderContainer.addEventListener("mousedown", (e) => {
     document.body.style.cursor = "none";
-    if (e.button == 0) {
-      buttonDown = true;
+    if (e.button == 0 || e.button === 2) {
+      buttonDown = e.button == 0 || e.button === 2;
     }
     lastX = e.clientX;
     lastY = e.clientY;
   });
 
-  window.addEventListener("mouseup", function (e) {
+  window.addEventListener("mouseup", (e) => {
     document.body.style.cursor = "";
-    if (e.button == 0) {
+    if (e.button == 0 || e.button === 2) {
       buttonDown = false;
     }
   });
 
-  window.addEventListener("mousemove", function (e) {
+  renderContainer.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  window.addEventListener("mousemove", (e) => {
     if (!buttonDown) {
       return;
     }
@@ -48,7 +50,9 @@ export function createMouseController({
     lastX = e.clientX;
     lastY = e.clientY;
 
-    if (e.shiftKey) {
+    console.log("e", e.buttons);
+
+    if (e.shiftKey || e.buttons === 2) {
       State.translate(state, dx, dy, renderer.resolution);
     } else {
       State.rotate(state, dx, dy);
@@ -59,7 +63,7 @@ export function createMouseController({
 
   renderContainer.addEventListener(
     "wheel",
-    function (event) {
+    (event) => {
       event.preventDefault();
       const wd = event.deltaY < 0 ? 1 : -1;
 

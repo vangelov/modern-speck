@@ -50,7 +50,6 @@ export type Structure = {
 export type Resolution = {
   width: number;
   height: number;
-  aspect: number;
 };
 
 export type Scale = {
