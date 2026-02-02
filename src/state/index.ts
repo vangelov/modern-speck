@@ -1,5 +1,5 @@
 import { mat4, vec4 } from "gl-matrix";
-import type { Resolution, Structure } from "../types";
+import type { Rectangle, Resolution, Structure } from "../types";
 import { Config } from "../config";
 import { Lib } from "../lib";
 import { samples } from "../config/samples";
@@ -147,7 +147,7 @@ function rotate(state: State, dx: number, dy: number) {
   resolve(state);
 }
 
-function getRect(state: State) {
+function getRect(state: State): Rectangle {
   const width = 1.0 / state.zoom;
   const height = width / state.aspect;
   const bottom = -height / 2 + state.translation.y;

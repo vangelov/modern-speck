@@ -1,4 +1,4 @@
-import { Renderer } from "./render/renderer";
+import { Renderer } from "./render/renderer__";
 import { State } from "./state";
 import { addRenderFolder } from "./ui/folder-render";
 import { addStructureFolder } from "./ui/folder-structure";

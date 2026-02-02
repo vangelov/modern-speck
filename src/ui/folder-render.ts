@@ -1,7 +1,7 @@
 import type { Pane } from "tweakpane";
 import { addInput, addPercentInput } from "./inputs";
 import { State } from "../state";
-import type { Renderer } from "../render/renderer";
+import type { Renderer } from "../render/renderer__";
 
 export type Params = {
   pane: Pane;

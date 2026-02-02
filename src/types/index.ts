@@ -52,6 +52,13 @@ export type Resolution = {
   height: number;
 };
 
+export type Rectangle = {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
+
 export type Scale = {
   name: string;
   factor: number;

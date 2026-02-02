@@ -1,6 +1,6 @@
 import type { Pane } from "tweakpane";
 import { addInput } from "./inputs";
-import type { Renderer } from "../render/renderer";
+import type { Renderer } from "../render/renderer__";
 import { samples } from "../config/samples";
 import { Server } from "../server";
 import { State } from "../state";

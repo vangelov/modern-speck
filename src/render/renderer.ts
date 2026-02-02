@@ -109,7 +109,6 @@ export class Renderer {
 
   static async create(canvas: HTMLCanvasElement, state: State) {
     const pico = PicoGL.createApp(canvas);
-    pico.clearColor(0.0, 0.0, 0.0, 1.0);
     pico.enable(PicoGL.DEPTH_TEST);
     pico.enable(PicoGL.CULL_FACE);
     pico.clearColor(0, 0, 0, 0);
@@ -782,6 +781,7 @@ export class Renderer {
     }
 
     this.pico.defaultDrawFramebuffer();
+
     this.rDispQuad.texture("uTexture", lastT);
     this.rDispQuad.uniform("uRes", [
       this.resolution.width,

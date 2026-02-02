@@ -1,4 +1,4 @@
-import type { Renderer } from "../render/renderer";
+import type { Renderer } from "../render/renderer__";
 import { State } from "../state";
 
 type Params = {
