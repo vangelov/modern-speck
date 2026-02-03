@@ -1,22 +1,24 @@
 import {
-  DrawCall,
-  Framebuffer,
+  type DrawCall,
+  type Framebuffer,
   PicoGL,
-  Program,
-  Texture,
-  VertexArray,
+  type Program,
+  type Texture,
+  type VertexArray,
   type App,
 } from "picogl";
 import type { Resolution } from "../types";
 import type { State } from "../state";
 import type { Pass1Initial } from "./pass-1-initial";
 
-export class Pass6FXAA {
+export class Pass6DOF {
   pico: App;
   resolution: Resolution;
 
   drawCall: DrawCall;
   framebuffer: Framebuffer;
+
+  colorTexture: Texture;
 
   constructor(
     pico: App,
@@ -34,14 +36,14 @@ export class Pass6FXAA {
     this.resolution = resolution;
     const { width, height } = resolution;
 
-    const colorTarget = this.pico.createTexture2D(width, height, {
+    this.colorTexture = this.pico.createTexture2D(width, height, {
       internalFormat: PicoGL.RGBA8,
       wrapS: PicoGL.CLAMP_TO_EDGE,
       wrapT: PicoGL.CLAMP_TO_EDGE,
     });
 
     this.framebuffer = this.pico.createFramebuffer();
-    this.framebuffer.colorTarget(0, colorTarget);
+    this.framebuffer.colorTarget(0, this.colorTexture);
   }
 
   run(state: State, pass1Initial: Pass1Initial, colorTexture: Texture) {

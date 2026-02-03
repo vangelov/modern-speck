@@ -21,8 +21,6 @@ export class Material {
 
     this.geometry = geometry;
 
-    console.log("mat");
-
     this.atomsDrawCall = this.pico.createDrawCall(
       atomsProgram,
       geometry.atomsVertexArray,
@@ -56,8 +54,6 @@ export class Material {
     const model = mat4.create();
     mat4.translate(model, model, [0, 0, -range / 2]);
     mat4.multiply(model, model, state.rotation);
-
-    console.log("draw", range);
 
     this.atomsDrawCall.uniform("uProjection", projection);
     this.atomsDrawCall.uniform("uView", view);

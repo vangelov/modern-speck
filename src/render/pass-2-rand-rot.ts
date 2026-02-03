@@ -8,9 +8,8 @@ export class Pass2RandRot {
   pico: App;
   resolution: Resolution;
   framebuffer: Framebuffer;
-  colorTexture: Texture;
-  depthTexture: Texture;
 
+  depthTexture: Texture;
   rect: Rectangle | null;
   rot: mat4 | null;
 
@@ -25,16 +24,6 @@ export class Pass2RandRot {
   setResolution(resolution: Resolution) {
     this.resolution = resolution;
 
-    this.colorTexture = this.pico.createTexture2D(
-      this.resolution.width,
-      this.resolution.height,
-      {
-        internalFormat: PicoGL.RGBA8,
-        wrapS: PicoGL.CLAMP_TO_EDGE,
-        wrapT: PicoGL.CLAMP_TO_EDGE,
-      },
-    );
-
     this.depthTexture = this.pico.createTexture2D(
       this.resolution.width,
       this.resolution.height,
@@ -46,7 +35,6 @@ export class Pass2RandRot {
     );
 
     this.framebuffer = this.pico.createFramebuffer();
-    this.framebuffer.colorTarget(0, this.colorTexture);
     this.framebuffer.depthTarget(this.depthTexture);
   }
 

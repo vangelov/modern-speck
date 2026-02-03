@@ -9,6 +9,8 @@ import { Geometry } from "./geometry";
 import { Pass2RandRot } from "./pass-2-rand-rot";
 import { Pass3Accum } from "./pass-3-accum";
 import { Pass4AO } from "./pass-4-ao";
+import { Pass5FXAA } from "./pass-5-fxaa";
+import { Pass6DOF } from "./pass-6-dof";
 
 export class Renderer {
   pico: App;
@@ -25,6 +27,8 @@ export class Renderer {
   pass2RandRot: Pass2RandRot;
   pass3Accum: Pass3Accum;
   pass4AO: Pass4AO;
+  pass5FXAA: Pass5FXAA;
+  pass6DOF: Pass6DOF;
   pass7Display: Pass7Display;
 
   constructor(
@@ -63,6 +67,18 @@ export class Renderer {
       programsLoader.progAO,
       resolution,
     );
+    this.pass5FXAA = new Pass5FXAA(
+      pico,
+      screenVertexArray,
+      programsLoader.progFXAA,
+      resolution,
+    );
+    this.pass6DOF = new Pass6DOF(
+      pico,
+      screenVertexArray,
+      programsLoader.progDOF,
+      resolution,
+    );
     this.pass7Display = new Pass7Display(
       pico,
       screenVertexArray,
@@ -92,11 +108,15 @@ export class Renderer {
     this.pico.resize(resolution.width, resolution.height);
 
     this.pass1Initiial.setResolution(resolution);
+    this.pass2RandRot.setResolution(aoResolution);
+    this.pass3Accum.setResolution(resolution);
+    this.pass4AO.setResolution(resolution);
+    this.pass5FXAA.setResolution(resolution);
+    this.pass6DOF.setResolution(resolution);
     this.pass7Display.setResolution(resolution);
   }
 
   setStructure(structure: Structure, state: State) {
-    console.log("set", structure);
     this.structure = structure;
     const geometry = new Geometry(this.pico, structure, state);
 
@@ -143,14 +163,22 @@ export class Renderer {
   }
 
   display(state: State) {
-    let colorTexture = this.pass1Initiial.colorTexture;
+    let displayTexture = this.pass1Initiial.colorTexture;
 
-    if (this.pass3Accum.accumTexture) {
-      this.pass4AO.run(state, this.pass1Initiial, this.pass3Accum);
-      colorTexture = this.pass4AO.colorTexture;
+    this.pass4AO.run(state, this.pass1Initiial, this.pass3Accum);
+    displayTexture = this.pass4AO.colorTexture;
+
+    if (state.fxaa > 0) {
+      this.pass5FXAA.run(state, displayTexture);
+      displayTexture = this.pass5FXAA.colorTexture;
     }
 
-    this.pass7Display.run(colorTexture);
+    if (state.dofStrength > 0) {
+      this.pass6DOF.run(state, this.pass1Initiial, displayTexture);
+      displayTexture = this.pass6DOF.colorTexture;
+    }
+
+    this.pass7Display.run(displayTexture);
   }
 
   reset() {

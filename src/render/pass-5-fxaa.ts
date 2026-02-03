@@ -1,15 +1,14 @@
 import {
-  DrawCall,
-  Framebuffer,
+  type DrawCall,
+  type Framebuffer,
   PicoGL,
-  Program,
-  Texture,
-  VertexArray,
+  type Program,
+  type Texture,
+  type VertexArray,
   type App,
 } from "picogl";
 import type { Resolution } from "../types";
 import type { State } from "../state";
-import type { Pass4AO } from "./pass-4-ao";
 
 export class Pass5FXAA {
   pico: App;
@@ -17,8 +16,10 @@ export class Pass5FXAA {
   drawCall: DrawCall;
   framebufferA: Framebuffer;
   framebufferB: Framebuffer;
+  colorTextureA: Texture;
+  colorTextureB: Texture;
 
-  colorTexture: Texture | null;
+  colorTexture: Texture;
 
   constructor(
     pico: App,
@@ -27,7 +28,6 @@ export class Pass5FXAA {
     resolution: Resolution,
   ) {
     this.pico = pico;
-    this.colorTexture = null;
 
     this.drawCall = this.pico.createDrawCall(program, screenVertexArray);
     this.setResolution(resolution);
@@ -37,57 +37,52 @@ export class Pass5FXAA {
     this.resolution = resolution;
     const { width, height } = resolution;
 
-    const colorTextureA = this.pico.createTexture2D(width, height, {
+    this.colorTextureA = this.pico.createTexture2D(width, height, {
       internalFormat: PicoGL.RGBA8,
       wrapS: PicoGL.CLAMP_TO_EDGE,
       wrapT: PicoGL.CLAMP_TO_EDGE,
     });
 
-    const colorTextureB = this.pico.createTexture2D(width, height, {
+    this.colorTextureB = this.pico.createTexture2D(width, height, {
       internalFormat: PicoGL.RGBA8,
       wrapS: PicoGL.CLAMP_TO_EDGE,
       wrapT: PicoGL.CLAMP_TO_EDGE,
     });
 
     this.framebufferA = this.pico.createFramebuffer();
-    this.framebufferA.colorTarget(0, colorTextureA);
+    this.framebufferA.colorTarget(0, this.colorTextureA);
 
     this.framebufferB = this.pico.createFramebuffer();
-    this.framebufferB.colorTarget(0, colorTextureB);
+    this.framebufferB.colorTarget(0, this.colorTextureB);
+
+    this.colorTexture = this.colorTextureB;
   }
 
-  run(state: State, pass4AO: Pass4AO) {
-    let lastT = pass4AO.colorTexture;
-    let cT = lastT;
-
+  run(state: State, inputTexture: Texture) {
     for (let i = 0; i < state.fxaa; i++) {
-      const f =
-        cT === lastT
-          ? this.framebufferA
-          : cT === this.framebufferB.colorAttachments[0]
-            ? this.framebufferA
-            : this.framebufferB;
-      this.pico.drawFramebuffer(f);
-
+      this.pico.drawFramebuffer(
+        this.colorTexture === this.colorTextureA
+          ? this.framebufferB
+          : this.framebufferA,
+      );
       this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
       this.pico.clear();
 
-      this.drawCall.texture("uTexture", cT);
-
+      this.drawCall.texture("uTexture", inputTexture);
       this.drawCall.uniform("uRes", [
         this.resolution.width,
         this.resolution.height,
       ]);
       this.drawCall.draw();
 
-      cT =
-        cT === lastT
-          ? this.framebufferA.colorAttachments[0]
-          : cT === this.framebufferA.colorAttachments[0]
-            ? this.framebufferB.colorAttachments[0]
-            : this.framebufferA.colorAttachments[0];
+      this.colorTexture =
+        this.colorTexture === this.colorTextureA
+          ? this.colorTextureB
+          : this.colorTextureA;
+
+      inputTexture = this.colorTexture;
     }
 
-    this.colorTexture = cT;
+    this.colorTexture = inputTexture;
   }
 }

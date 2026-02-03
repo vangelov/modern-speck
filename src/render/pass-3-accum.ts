@@ -19,8 +19,10 @@ export class Pass3Accum {
   drawCall: DrawCall;
   framebufferA: Framebuffer;
   framebufferB: Framebuffer;
+  colorTextureA: Texture;
+  colorTextureB: Texture;
 
-  accumTexture: Texture | null;
+  accumTexture: Texture;
 
   constructor(
     pico: App,
@@ -29,7 +31,6 @@ export class Pass3Accum {
     resolution: Resolution,
   ) {
     this.pico = pico;
-    this.accumTexture = null;
     this.drawCall = this.pico.createDrawCall(program, screenVertexArray);
     this.setResolution(resolution);
   }
@@ -37,7 +38,7 @@ export class Pass3Accum {
   setResolution(resolution: Resolution) {
     this.resolution = resolution;
 
-    const colorTextureA = this.pico.createTexture2D(
+    this.colorTextureA = this.pico.createTexture2D(
       this.resolution.width,
       this.resolution.height,
       {
@@ -46,10 +47,8 @@ export class Pass3Accum {
         wrapT: PicoGL.CLAMP_TO_EDGE,
       },
     );
-    this.framebufferA = this.pico.createFramebuffer();
-    this.framebufferA.colorTarget(0, colorTextureA);
 
-    const colorTextureB = this.pico.createTexture2D(
+    this.colorTextureB = this.pico.createTexture2D(
       this.resolution.width,
       this.resolution.height,
       {
@@ -58,8 +57,14 @@ export class Pass3Accum {
         wrapT: PicoGL.CLAMP_TO_EDGE,
       },
     );
+
+    this.framebufferA = this.pico.createFramebuffer();
+    this.framebufferA.colorTarget(0, this.colorTextureA);
+
     this.framebufferB = this.pico.createFramebuffer();
-    this.framebufferB.colorTarget(0, colorTextureB);
+    this.framebufferB.colorTarget(0, this.colorTextureB);
+
+    this.accumTexture = this.colorTextureB;
   }
 
   run(
@@ -70,30 +75,22 @@ export class Pass3Accum {
   ) {
     if (!pass2RandRot.rot || !pass2RandRot.rect || !pass1Initial.rect) return;
 
-    this.pico.viewport(0, 0, this.resolution.width, this.resolution.height);
-
     const invRot = mat4.invert(mat4.create(), pass2RandRot.rot);
     const range = material.geometry.range;
 
-    if (!this.accumTexture)
-      this.accumTexture = this.framebufferB.colorAttachments[0];
-
+    this.pico.viewport(0, 0, this.resolution.width, this.resolution.height);
     this.pico.drawFramebuffer(
-      this.accumTexture === this.framebufferB.colorAttachments[0]
+      this.accumTexture === this.colorTextureB
         ? this.framebufferA
         : this.framebufferB,
     );
-
     this.pico.clearMask(PicoGL.COLOR_BUFFER_BIT | PicoGL.DEPTH_BUFFER_BIT);
     this.pico.clear();
 
     this.drawCall.texture("uSceneDepth", pass1Initial.depthTexture);
     this.drawCall.texture("uSceneNormal", pass1Initial.normalTexture);
     this.drawCall.texture("uRandRotDepth", pass2RandRot.depthTexture);
-
-    if (this.accumTexture)
-      this.drawCall.texture("uAccumulator", this.accumTexture);
-
+    this.drawCall.texture("uAccumulator", this.accumTexture);
     this.drawCall.uniform("uSceneBottomLeft", [
       pass1Initial.rect.left,
       pass1Initial.rect.bottom,
@@ -121,18 +118,18 @@ export class Pass3Accum {
     this.drawCall.draw();
 
     this.accumTexture =
-      this.accumTexture === this.framebufferB.colorAttachments[0]
-        ? this.framebufferA.colorAttachments[0]
-        : this.framebufferB.colorAttachments[0];
+      this.accumTexture === this.colorTextureB
+        ? this.colorTextureA
+        : this.colorTextureB;
   }
 
   reset() {
-    this.accumTexture = null;
-
     this.pico.drawFramebuffer(this.framebufferA);
     this.pico.clear();
 
     this.pico.drawFramebuffer(this.framebufferB);
     this.pico.clear();
+
+    this.accumTexture = this.colorTextureB;
   }
 }

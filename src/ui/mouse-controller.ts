@@ -50,8 +50,6 @@ export function createMouseController({
     lastX = e.clientX;
     lastY = e.clientY;
 
-    console.log("e", e.buttons);
-
     if (e.shiftKey || e.buttons === 2) {
       State.translate(state, dx, dy, renderer.resolution);
     } else {

@@ -6,9 +6,9 @@ import { State } from "../state";
 export class Pass1Initial {
   pico: App;
   resolution: Resolution;
-
   rect: Rectangle | null;
   framebuffer: Framebuffer;
+
   colorTexture: Texture;
   normalTexture: Texture;
   depthTexture: Texture;
