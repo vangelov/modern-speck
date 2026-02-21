@@ -4,6 +4,7 @@ import type { Renderer } from "../render/renderer";
 import { samples } from "../config/samples";
 import { Server } from "../server";
 import { State } from "../state";
+import { Data } from "../data";
 
 type Params = {
   pane: Pane;
@@ -15,14 +16,20 @@ type Params = {
 export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
   const structureFolder = pane.addFolder({ title: "Structure" });
 
-  async function display() {
-    const structure = await Server.getSampleStructure(state.file);
+  async function loadAndDisplay(custom?: string) {
+    const structure = custom
+      ? Data.Structures.createFromText(custom)
+      : await Server.getSampleStructure(state.file);
+
+    console.log("c", custom, structure);
+
     if (!structure) return;
+
     State.center(state, structure);
     renderer.setStructure(structure, state);
   }
 
-  display();
+  loadAndDisplay();
 
   addInput(structureFolder, {
     label: "Sample",
@@ -33,23 +40,27 @@ export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
     })),
     onChange: async (value) => {
       state.file = value;
-      await display();
+      await loadAndDisplay();
       onReset();
     },
   });
 
   structureFolder.addBlade({ view: "separator" });
 
-  addInput(structureFolder, {
+  const customInput = addInput(structureFolder, {
     view: "textarea",
     label: "Custom",
     rows: 3,
     initialValue: "",
     placeholder: "Paste xyz file data...",
-    onChange: (value) => {},
   });
 
-  structureFolder.addButton({
-    title: "Load",
-  });
+  structureFolder
+    .addButton({
+      title: "Load",
+    })
+    .on("click", () => {
+      loadAndDisplay(customInput.getValue());
+      onReset();
+    });
 }

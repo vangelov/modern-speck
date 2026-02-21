@@ -11,7 +11,7 @@ type Input<T> = {
 
 type Params<V> = BindingParams & {
   initialValue: V;
-  onChange: (value: V) => void;
+  onChange?: (value: V) => void;
 };
 
 export function addInput<V>(
@@ -19,10 +19,11 @@ export function addInput<V>(
   { initialValue, onChange, ...bindingParams }: Params<V>,
 ): Input<V> {
   const state = { value: initialValue };
+  const binding = folder.addBinding(state, "value", bindingParams);
 
-  const binding = folder
-    .addBinding(state, "value", bindingParams)
-    .on("change", (event) => onChange(event.value));
+  if (onChange) {
+    binding.on("change", (event) => onChange(event.value));
+  }
 
   function setValue(value: V) {
     state.value = value;
@@ -54,7 +55,7 @@ export function addPercentInput(folder: FolderApi, params: PercentParams) {
     max,
     step,
     initialValue: initialValue * 100,
-    onChange: (value: number) => onChange(value / 100),
+    onChange: onChange ? (value: number) => onChange(value / 100) : undefined,
   });
 
   if (hotKey && renderContainer) {
