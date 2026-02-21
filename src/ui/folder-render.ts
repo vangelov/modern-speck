@@ -2,6 +2,7 @@ import type { Pane } from "tweakpane";
 import { addInput, addPercentInput } from "./inputs";
 import { State } from "../state";
 import type { Renderer } from "../render/renderer";
+import { Config } from "../config";
 
 export type Params = {
   pane: Pane;
@@ -19,7 +20,44 @@ export function addRenderFolder({
 }: Params) {
   const renderFolder = pane.addFolder({ title: "Render" });
 
-  addPercentInput(renderFolder, {
+  addInput(renderFolder, {
+    label: "Preset",
+    initialValue: state.preset,
+    options: Config.presents.map((preset) => ({
+      text: preset.name,
+      value: preset.id,
+    })),
+    onChange: async (value) => {
+      const defaultOverrides = Config.overridesMap.get("default");
+      const overrides = Config.overridesMap.get(value);
+      if (!overrides || !defaultOverrides) return;
+
+      State.override(state, { ...defaultOverrides, ...overrides });
+
+      atomRadiusInput.reset(state.atomScale);
+      relativeAtomScaleInput.reset(state.relativeAtomScale);
+      atomShadeInput.reset(state.atomShade);
+      bondsInput.reset(state.bonds);
+      bondScaleInput.reset(state.bondScale);
+      bondThresholdInput.reset(state.bondThreshold);
+      bondShadeInput.reset(state.bondShade);
+      aoInput.reset(state.ao);
+      brightnessInput.reset(state.brightness);
+      aoResScaleInput.reset(state.aoResScale);
+      spfInput.reset(state.spf);
+      dofStrengthInput.reset(state.dofStrength);
+      dofPositionInput.reset(state.dofPosition);
+      outlineInput.reset(state.outline);
+      fxaaInput.reset(state.fxaa);
+      resolutionScaleInput.reset(state.resolutionScale);
+
+      renderer.setResolution(state);
+      renderer.setStructure(renderer.structure, state);
+      onReset();
+    },
+  });
+
+  const atomRadiusInput = addPercentInput(renderFolder, {
     label: "Atom radius",
     hotKey: "a",
     initialValue: state.atomScale,
@@ -29,7 +67,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const relativeAtomScaleInput = addPercentInput(renderFolder, {
     label: "Relative atom radius",
     hotKey: "z",
     initialValue: state.relativeAtomScale,
@@ -39,7 +77,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const atomShadeInput = addPercentInput(renderFolder, {
     label: "Atom shade",
     hotKey: "w",
     initialValue: state.atomShade,
@@ -51,7 +89,7 @@ export function addRenderFolder({
 
   renderFolder.addBlade({ view: "separator" });
 
-  addInput(renderFolder, {
+  const bondsInput = addInput(renderFolder, {
     label: "Bonds",
     initialValue: false,
     onChange: (value) => {
@@ -61,7 +99,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const bondScaleInput = addPercentInput(renderFolder, {
     label: "Bond radius",
     hotKey: "b",
     initialValue: state.bondScale,
@@ -71,7 +109,7 @@ export function addRenderFolder({
     },
   });
 
-  addInput(renderFolder, {
+  const bondThresholdInput = addInput(renderFolder, {
     label: "Bond threshold",
     initialValue: state.bondThreshold,
     min: 0,
@@ -84,7 +122,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const bondShadeInput = addPercentInput(renderFolder, {
     label: "Bond shade",
     hotKey: "s",
     initialValue: state.bondShade,
@@ -96,7 +134,7 @@ export function addRenderFolder({
 
   renderFolder.addBlade({ view: "separator" });
 
-  addPercentInput(renderFolder, {
+  const aoInput = addPercentInput(renderFolder, {
     label: "Ambient occlusion",
     hotKey: "a",
     initialValue: state.ao,
@@ -105,7 +143,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const brightnessInput = addPercentInput(renderFolder, {
     label: "Brightness",
     hotKey: "l",
     initialValue: state.brightness,
@@ -114,7 +152,7 @@ export function addRenderFolder({
     },
   });
 
-  addInput(renderFolder, {
+  const aoResScaleInput = addInput(renderFolder, {
     label: "AO resolution scale",
     initialValue: 1,
     options: [
@@ -134,7 +172,7 @@ export function addRenderFolder({
     },
   });
 
-  addInput(renderFolder, {
+  const spfInput = addInput(renderFolder, {
     label: "Samples per frame",
     initialValue: 32,
     options: [
@@ -156,7 +194,7 @@ export function addRenderFolder({
 
   renderFolder.addBlade({ view: "separator" });
 
-  addPercentInput(renderFolder, {
+  const dofStrengthInput = addPercentInput(renderFolder, {
     label: "Depth of field strength",
     hotKey: "d",
     initialValue: state.dofStrength,
@@ -165,7 +203,7 @@ export function addRenderFolder({
     },
   });
 
-  addPercentInput(renderFolder, {
+  const dofPositionInput = addPercentInput(renderFolder, {
     label: "Depth of field position",
     hotKey: "p",
     initialValue: state.dofPosition,
@@ -176,7 +214,7 @@ export function addRenderFolder({
 
   renderFolder.addBlade({ view: "separator" });
 
-  addPercentInput(renderFolder, {
+  const outlineInput = addPercentInput(renderFolder, {
     label: "Outline strength",
     hotKey: "q",
     initialValue: state.outline,
@@ -185,7 +223,7 @@ export function addRenderFolder({
     },
   });
 
-  addInput(renderFolder, {
+  const fxaaInput = addInput(renderFolder, {
     label: "Antialiasing passes",
     initialValue: state.fxaa,
     min: 0,
@@ -196,7 +234,7 @@ export function addRenderFolder({
     },
   });
 
-  addInput(renderFolder, {
+  const resolutionScaleInput = addInput(renderFolder, {
     label: "Resolution scale",
     initialValue: 1,
     options: [

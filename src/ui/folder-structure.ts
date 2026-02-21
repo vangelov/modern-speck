@@ -1,7 +1,7 @@
 import type { Pane } from "tweakpane";
 import { addInput } from "./inputs";
 import type { Renderer } from "../render/renderer";
-import { samples } from "../config/samples";
+import { Config } from "../config";
 import { Server } from "../server";
 import { State } from "../state";
 import { Data } from "../data";
@@ -21,8 +21,6 @@ export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
       ? Data.Structures.createFromText(custom)
       : await Server.getSampleStructure(state.file);
 
-    console.log("c", custom, structure);
-
     if (!structure) return;
 
     State.center(state, structure);
@@ -34,7 +32,7 @@ export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
   addInput(structureFolder, {
     label: "Sample",
     initialValue: state.file,
-    options: samples.map((sample) => ({
+    options: Config.samples.map((sample) => ({
       text: sample.name,
       value: sample.file,
     })),

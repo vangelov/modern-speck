@@ -1,3 +1,7 @@
+export type { State } from "../state";
+
+import type { State } from "../state";
+
 export type Sample = {
   name: string;
   file: string;
@@ -62,4 +66,9 @@ export type Rectangle = {
 export type Scale = {
   name: string;
   factor: number;
+};
+
+export type Preset = {
+  name: string;
+  id: "default" | "stickball" | "toon" | "licorice";
 };

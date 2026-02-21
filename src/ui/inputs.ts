@@ -1,4 +1,4 @@
-import type { BindingParams } from "@tweakpane/core";
+import type { BindingParams, TpChangeEvent } from "@tweakpane/core";
 import type { FolderApi } from "tweakpane";
 import { Lib } from "../lib";
 
@@ -7,6 +7,7 @@ const renderContainer = document.getElementById("render-container");
 type Input<T> = {
   getValue: () => T;
   setValue: (value: T) => void;
+  reset: (value: T) => void;
 };
 
 type Params<V> = BindingParams & {
@@ -21,22 +22,32 @@ export function addInput<V>(
   const state = { value: initialValue };
   const binding = folder.addBinding(state, "value", bindingParams);
 
-  if (onChange) {
-    binding.on("change", (event) => onChange(event.value));
+  function changeHandler(event: TpChangeEvent<V>) {
+    onChange && onChange(event.value);
   }
 
+  binding.on("change", changeHandler);
+
   function setValue(value: V) {
+    if (value === state.value) return;
     state.value = value;
-    binding.refresh();
   }
 
   function getValue() {
     return state.value;
   }
 
+  function reset(value: V) {
+    state.value = value;
+    binding.off("change", changeHandler);
+    binding.refresh();
+    binding.on("change", changeHandler);
+  }
+
   return {
     getValue,
     setValue,
+    reset,
   };
 }
 
@@ -75,5 +86,8 @@ export function addPercentInput(folder: FolderApi, params: PercentParams) {
     );
   }
 
-  return numberInput;
+  return {
+    ...numberInput,
+    reset: (value: number) => numberInput.reset(value * 100),
+  };
 }

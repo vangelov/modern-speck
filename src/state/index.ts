@@ -10,6 +10,7 @@ const windowResolution: Resolution = {
 };
 
 export type State = {
+  preset: string;
   file: string;
   zoom: number;
   translation: {
@@ -39,6 +40,7 @@ export type State = {
 
 function create(): State {
   return {
+    preset: "default",
     file: samples[0].file,
     zoom: 0.125,
     translation: {
@@ -63,7 +65,7 @@ function create(): State {
     dofPosition: 0.5,
     fxaa: 1,
     aspect: window.innerWidth / window.innerHeight,
-    windowResolution: windowResolution,
+    windowResolution,
   };
 }
 
