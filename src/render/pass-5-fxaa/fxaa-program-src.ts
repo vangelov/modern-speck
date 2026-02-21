@@ -69,7 +69,4 @@ void main() {
 }
 `;
 
-export const FXAAProgram = {
-  vertexShaderSrc,
-  fragmentShaderSrc,
-};
+export const FXAAProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

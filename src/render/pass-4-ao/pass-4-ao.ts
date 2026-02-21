@@ -7,12 +7,15 @@ import {
   type VertexArray,
   type App,
 } from "picogl";
-import type { Resolution } from "../types";
-import type { Pass1Initial } from "./pass-1-initial";
-import type { State } from "../state";
-import type { Pass3Accum } from "./pass-3-accum";
+import type { Resolution } from "../../types";
+import type { Pass1Initial } from "../pass-1-initial/pass-1-initial";
+import type { State } from "../../state";
+import type { Pass3Accum } from "../pass-3-accum/pass-3-accum";
+import { AOProgramSrc } from "./ao-program-src";
 
 export class Pass4AO {
+  static AOProgramSrc = AOProgramSrc;
+
   pico: App;
   resolution: Resolution;
   drawCall: DrawCall;

@@ -7,10 +7,13 @@ import {
   type VertexArray,
   type App,
 } from "picogl";
-import type { Resolution } from "../types";
-import type { State } from "../state";
+import type { Resolution } from "../../types";
+import type { State } from "../../state";
+import { FXAAProgramSrc } from "./fxaa-program-src";
 
 export class Pass5FXAA {
+  static FXAAProgramSrc = FXAAProgramSrc;
+
   pico: App;
   resolution: Resolution;
   drawCall: DrawCall;

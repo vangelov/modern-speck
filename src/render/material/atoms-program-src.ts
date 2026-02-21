@@ -72,7 +72,4 @@ void main() {
 }
 `;
 
-export const AtomsProgram = {
-  fragmentShaderSrc,
-  vertexShaderSrc,
-};
+export const AtomsProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

@@ -7,13 +7,16 @@ import {
   type VertexArray,
   type App,
 } from "picogl";
-import type { Resolution } from "../types";
+import type { Resolution } from "../../types";
 import { mat4 } from "gl-matrix";
-import type { Pass1Initial } from "./pass-1-initial";
-import type { Pass2RandRot } from "./pass-2-rand-rot";
-import type { Material } from "./material";
+import type { Pass1Initial } from "../pass-1-initial/pass-1-initial";
+import type { Pass2RandRot } from "../pass-2-rand-rot/pass-2-rand-rot";
+import type { Material } from "../material/material";
+import { AccumProgramSrc } from "./accum-program-src";
 
 export class Pass3Accum {
+  static AccumProgramSrc = AccumProgramSrc;
+
   pico: App;
   resolution: Resolution;
   drawCall: DrawCall;

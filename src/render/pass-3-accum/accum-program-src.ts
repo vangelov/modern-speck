@@ -68,4 +68,4 @@ void main() {
 }
 `;
 
-export const AccumulatorProgram = { vertexShaderSrc, fragmentShaderSrc };
+export const AccumProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

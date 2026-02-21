@@ -156,7 +156,4 @@ void main() {
 }
 `;
 
-export const BondsProgram = {
-  vertexShaderSrc,
-  fragmentShaderSrc,
-};
+export const BondsProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

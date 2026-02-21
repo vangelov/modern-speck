@@ -1,8 +1,8 @@
 import { PicoGL, type App, type VertexArray } from "picogl";
-import type { Structure } from "../types";
+import type { Structure } from "../../types";
 import { Cube } from "./cube";
-import { Config } from "../config";
-import { State } from "../state";
+import { Config } from "../../config";
+import { State } from "../../state";
 
 export class Geometry {
   pico: App;

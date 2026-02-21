@@ -114,4 +114,4 @@ void main() {
 }
 `;
 
-export const DOFProgram = { vertexShaderSrc, fragmentShaderSrc };
+export const DOFProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

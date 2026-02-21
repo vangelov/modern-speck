@@ -1,11 +1,10 @@
 import type { App, Program } from "picogl";
-import { AtomsProgram } from "./programs/atoms";
-import { TexturedQuadProgram } from "./programs/textured-quad";
-import { BondsProgram } from "./programs/bonds";
-import { AOProgram } from "./programs/ao";
-import { AccumulatorProgram } from "./programs/accumulator";
-import { FXAAProgram } from "./programs/fxaa";
-import { DOFProgram } from "./programs/dof";
+import { Material } from "./material/material";
+import { Pass3Accum } from "./pass-3-accum/pass-3-accum";
+import { Pass4AO } from "./pass-4-ao/pass-4-ao";
+import { Pass5FXAA } from "./pass-5-fxaa/pass-5-fxaa";
+import { Pass6DOF } from "./pass-6-dof/pass-6-dof";
+import { Pass7Display } from "./pass-7-display/pass-7-display";
 
 export class ProgramsLoader {
   progDisplayQuad: Program;
@@ -18,41 +17,32 @@ export class ProgramsLoader {
 
   constructor([
     progAtoms,
-    progDisplayQuad,
     progBonds,
-    progAO,
     progAccumulator,
+    progAO,
+
     progFXAA,
     progDOF,
+    progDisplayQuad,
   ]: Program[]) {
     this.progDisplayQuad = progDisplayQuad;
     this.progAtoms = progAtoms;
     this.progBonds = progBonds;
-    this.progAO = progAO;
     this.progAccumulator = progAccumulator;
+    this.progAO = progAO;
     this.progFXAA = progFXAA;
     this.progDOF = progDOF;
   }
 
   static async load(pico: App) {
     const programs = await pico.createPrograms(
-      [AtomsProgram.vertexShaderSrc, AtomsProgram.fragmentShaderSrc],
-      [
-        TexturedQuadProgram.vertexShaderSrc,
-        TexturedQuadProgram.fragmentShaderSrc,
-      ],
-
-      [BondsProgram.vertexShaderSrc, BondsProgram.fragmentShaderSrc],
-
-      [AOProgram.vertexShaderSrc, AOProgram.fragmentShaderSrc],
-      [
-        AccumulatorProgram.vertexShaderSrc,
-        AccumulatorProgram.fragmentShaderSrc,
-      ],
-
-      [FXAAProgram.vertexShaderSrc, FXAAProgram.fragmentShaderSrc],
-
-      [DOFProgram.vertexShaderSrc, DOFProgram.fragmentShaderSrc],
+      Material.AtomsProgramSrc,
+      Material.BondsProgramSrc,
+      Pass3Accum.AccumProgramSrc,
+      Pass4AO.AOProgramSrc,
+      Pass5FXAA.FXAAProgramSrc,
+      Pass6DOF.DOFProgramSrc,
+      Pass7Display.DisplayProgramSrc,
     );
 
     return new ProgramsLoader(programs);

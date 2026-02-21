@@ -1,10 +1,15 @@
 import { type DrawCall, type Program, type App } from "picogl";
-import type { Rectangle, Resolution } from "../types";
-import { State } from "../state";
+import type { Rectangle, Resolution } from "../../types";
+import { State } from "../../state";
 import { mat4 } from "gl-matrix";
-import type { Geometry } from "./geometry";
+import type { Geometry } from "../geometry/geometry";
+import { AtomsProgramSrc } from "./atoms-program-src";
+import { BondsProgramSrc } from "./bonds-program-src";
 
 export class Material {
+  static AtomsProgramSrc = AtomsProgramSrc;
+  static BondsProgramSrc = BondsProgramSrc;
+
   pico: App;
   geometry: Geometry;
 

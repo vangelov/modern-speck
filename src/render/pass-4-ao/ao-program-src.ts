@@ -46,7 +46,4 @@ void main() {
 }
 `;
 
-export const AOProgram = {
-  vertexShaderSrc,
-  fragmentShaderSrc,
-};
+export const AOProgramSrc = [vertexShaderSrc, fragmentShaderSrc];

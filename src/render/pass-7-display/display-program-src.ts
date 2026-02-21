@@ -23,7 +23,4 @@ void main() {
 }
 `;
 
-export const TexturedQuadProgram = {
-  vertexShaderSrc,
-  fragmentShaderSrc,
-};
+export const DisplayProgramSrc = [vertexShaderSrc, fragmentShaderSrc];
