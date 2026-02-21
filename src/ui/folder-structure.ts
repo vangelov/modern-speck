@@ -1,33 +1,39 @@
 import type { Pane } from "tweakpane";
+
 import { addInput } from "./inputs";
 import type { Renderer } from "../render/renderer";
 import { Config } from "../config";
 import { Server } from "../server";
 import { State } from "../state";
 import { Data } from "../data";
+import type { Structure } from "../types";
 
 type Params = {
   pane: Pane;
   renderer: Renderer;
   state: State;
+  initialCustom?: Structure;
   onReset: () => void;
 };
 
-export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
+export function addStructureFolder({
+  pane,
+  renderer,
+  state,
+  initialCustom,
+  onReset,
+}: Params) {
   const structureFolder = pane.addFolder({ title: "Structure" });
 
-  async function loadAndDisplay(custom?: string) {
-    const structure = custom
-      ? Data.Structures.createFromText(custom)
-      : await Server.getSampleStructure(state.file);
-
+  async function loadAndDisplay(structure?: Structure | null) {
+    structure = structure || (await Server.getSampleStructure(state.file));
     if (!structure) return;
 
-    State.center(state, structure);
+    if (!initialCustom) State.center(state, structure);
     renderer.setStructure(structure, state);
   }
 
-  loadAndDisplay();
+  loadAndDisplay(initialCustom);
 
   addInput(structureFolder, {
     label: "Sample",
@@ -58,7 +64,10 @@ export function addStructureFolder({ pane, renderer, state, onReset }: Params) {
       title: "Load",
     })
     .on("click", () => {
-      loadAndDisplay(customInput.getValue());
+      const structure = Data.Structures.createFromText(customInput.getValue());
+      if (!structure) return;
+
+      loadAndDisplay(structure);
       onReset();
     });
 }

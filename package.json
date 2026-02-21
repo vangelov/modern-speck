@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "gl-matrix": "^3.4.4",
+    "lz-string": "^1.5.0",
     "picogl": "^0.17.9",
     "tweakpane": "^4.0.5"
   }

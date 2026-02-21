@@ -11,13 +11,7 @@ export type Params = {
   onReset: () => void;
 };
 
-export function addRenderFolder({
-  pane,
-  state,
-  renderer,
-
-  onReset,
-}: Params) {
+export function addRenderFolder({ pane, state, renderer, onReset }: Params) {
   const renderFolder = pane.addFolder({ title: "Render" });
 
   addInput(renderFolder, {
@@ -91,7 +85,7 @@ export function addRenderFolder({
 
   const bondsInput = addInput(renderFolder, {
     label: "Bonds",
-    initialValue: false,
+    initialValue: state.bonds,
     onChange: (value) => {
       state.bonds = value;
       if (renderer.structure) renderer.setStructure(renderer.structure, state);

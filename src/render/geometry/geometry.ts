@@ -21,6 +21,7 @@ export class Geometry {
     this.createAtomsVertexArray();
 
     if (state.bonds && structure.bonds.length > 0) {
+      console.log("create");
       this.createBondsVertexArray(state);
     }
   }
