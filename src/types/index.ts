@@ -1,7 +1,5 @@
 export type { State } from "../state";
 
-import type { State } from "../state";
-
 export type Sample = {
   name: string;
   file: string;
