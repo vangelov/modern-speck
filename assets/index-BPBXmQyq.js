@@ -541,7 +541,7 @@ original Speck molecule renderer created by Rye Terrell.
 Original project: https://github.com/wwwtyro/speck
 
 Notable changes:
-- Fullscreen rendering support
+- Full-viewport rendering
 - Combined color and normal outputs in a single draw call using MRT
 - Instanced rendering for atoms and bonds
 - Ping-pong rendering for AO and FXAA instead of texture copying
