@@ -16,7 +16,7 @@ This project is a modernized reimplementation of the [original Speck molecule re
 
 ### Notable changes:
 
-- Full viewport size rendering
+- Full-viewport rendering
 - Single draw for color and normal outputs using MRT
 - Instanced rendering for atoms and bonds
 - Ping-pong rendering for AO and FXAA instead of texture copying
