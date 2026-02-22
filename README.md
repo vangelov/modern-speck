@@ -18,8 +18,8 @@ This project is a modernized reimplementation of the [original Speck molecule re
 
 - Full viewport size rendering
 - Single draw for color and normal outputs using MRT
-- Instanced rendering
-- Ping-pong rendering instead of texture copying
+- Instanced rendering for atoms and bonds
+- Ping-pong rendering for AO and FXAA instead of texture copying
 - Structured the renderer around modular rendering passes
 - Rewritten in TypeScript, built with [Vite](https://vite.dev/)
 - Upgraded to WebGL 2 using [PicoGL.js](https://tsherif.github.io/picogl.js/)
