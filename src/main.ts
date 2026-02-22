@@ -56,7 +56,7 @@ addRenderFolder({
   state,
   onReset,
 });
-addShareFolder({ pane, renderer, state });
+addShareFolder({ pane, renderer, state, canvas });
 addHelpFolder({ pane });
 addAboutFolder({ pane });
 

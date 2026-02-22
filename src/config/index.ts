@@ -2,6 +2,7 @@ import { elements } from "./elements";
 import { samples } from "./samples";
 import { scales } from "./scales";
 import { presents, overridesMap } from "./presets";
+import { mimeTypes } from "./mime-types";
 
 const elementsMap = new Map(
   elements.map((element) => [element.symbol, element]),
@@ -23,4 +24,5 @@ export const Config = {
   elementsMap,
   minAtomRadius,
   maxAtomRaduis,
+  mimeTypes,
 };
